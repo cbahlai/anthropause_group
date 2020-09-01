@@ -96,20 +96,77 @@ unique(ntl$spname)
 #ok, let's just turn this into raw biomass per sampling year- turns out multiple dates are
 #just the same sampling event
 
+#need to standardize sampling effort, first let's just use BSEINE becasue it's been used consistently
+#and lake ME because it's the urban one so prbably is most affected by local games fishers
 
-summary.ntl<-ddply(ntl, c("year4", "lakeid", "effort"), summarise,
+ntl.2<-ntl[which(ntl$lakeid=="ME" & ntl$gearid=="BSEINE"),]
+
+
+summary.ntl<-ddply(ntl.2, c("year4", "effort"), summarise,
                    tot.caught=(sum(total_caught, na.rm=T)))
 
-summary.ntl.bysite<-ddply(summary.ntl, "year4", summarise,
-                          mean.mass=mean(tot.biomass), 
-                          se.mass=(sd(tot.biomass)/sqrt(length(tot.biomass))))
+#compute fish per unit effort
+summary.ntl$fish.effort<-summary.ntl$tot.caught/summary.ntl$effort
 
 
-plot(summary.ntl.bysite$year4, summary.ntl.bysite$mean.mass)
+
+plot(summary.ntl$year4, summary.ntl$fish.effort)
 
 
 #another work-with-able time series 
 
 
+#ok! let's create the individual figures
+
+
+
+#start with NTL because it's the longest
+
+ntl.timeseries<-ggplot(summary.ntl, aes(year4, fish.effort))+
+  geom_smooth(method="loess", se=T, color="midnightblue", fill="azure3")+
+  geom_line(color="cadetblue", size=1)+
+  geom_point(pch=21, color="black", fill="cadetblue", size=2)+
+  theme_classic(base_size = 12)+
+  xlab("Year")+
+  ylab("Fish per sample")+
+  xlim(1980,2022)+
+  annotate("text", x=1981, y=425, label="NTL", size=8)+
+  geom_segment(aes(x=2019, xend=2022, ), colour="blue", linetype="longdash")+ 
+
+ntl.timeseries
+
+
+#now sbc
+
+sbc.timeseries<-ggplot(summary.sbc.bysite, aes(YEAR, mean.mass))+
+  geom_smooth(method="loess", se=T, color="darkblue", fill="azure3")+
+  geom_line(color="darkcyan", size=1)+
+  #geom_errorbar(aes(ymin=(mean.mass-se.mass), ymax=(mean.mass+se.mass)), width=0.2)+
+  geom_point(pch=21, color="black", fill="darkcyan", size=2)+
+  theme_classic(base_size = 12)+
+  xlab(NULL)+
+  ylab(expression(paste("Mean biomass, g/m"^"2")))+
+  xlim(1980,2022)+
+  theme(axis.line.x = element_blank(), axis.ticks.x=element_blank(),
+        axis.text.x=element_blank())+
+  annotate("text", x=1981, y=32, label="SBC", size=8)
+
+sbc.timeseries
+
+#now mcr
+
+mcr.timeseries<-ggplot(summary.mcr.bysite, aes(Year, mean.mass))+
+    geom_smooth(method="loess", se=T, color="navy", fill="azure3")+
+  geom_line(color="deepskyblue4", size=1)+
+  geom_point(pch=21, color="black", fill="deepskyblue", size=2)+
+  theme_classic(base_size = 12)+
+  xlab(NULL)+
+  ylab(expression(paste("Mean biomass per sampling swath, g")))+
+  xlim(1980,2022)+
+  theme(axis.line.x = element_blank(), axis.ticks.x=element_blank(),
+        axis.text.x=element_blank())+
+  annotate("text", x=1981, y=32, label="MCR", size=8)
+
+mcr.timeseries
 
 
