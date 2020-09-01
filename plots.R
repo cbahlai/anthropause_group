@@ -123,15 +123,18 @@ plot(summary.ntl$year4, summary.ntl$fish.effort)
 #start with NTL because it's the longest
 
 ntl.timeseries<-ggplot(summary.ntl, aes(year4, fish.effort))+
-  geom_smooth(method="loess", se=T, color="midnightblue", fill="azure3")+
+  geom_smooth(method="loess", se=T, color="midnightblue", fill="azure3", linetype="dotted")+
   geom_line(color="cadetblue", size=1)+
   geom_point(pch=21, color="black", fill="cadetblue", size=2)+
   theme_classic(base_size = 12)+
   xlab("Year")+
-  ylab("Fish per sample")+
+  ylab("Fish per sample\n")+
   xlim(1980,2022)+
-  annotate("text", x=1981, y=425, label="NTL", size=8)+
-  geom_segment(aes(x=2019, xend=2022, ), colour="blue", linetype="longdash")+ 
+  annotate("text", x=1981, y=425, label="NTL", size=6)+
+  geom_segment(aes(x=2019, xend=2022, y=120, yend=120), 
+               colour="grey51", linetype="longdash", size=1)+ 
+  geom_segment(aes(x=2019, xend=2022, y=0, yend=0), 
+               colour="grey51", linetype="longdash", size=1)
 
 ntl.timeseries
 
@@ -139,34 +142,52 @@ ntl.timeseries
 #now sbc
 
 sbc.timeseries<-ggplot(summary.sbc.bysite, aes(YEAR, mean.mass))+
-  geom_smooth(method="loess", se=T, color="darkblue", fill="azure3")+
+  geom_smooth(method="loess", se=T, color="darkblue", fill="azure3", linetype="dotted")+
   geom_line(color="darkcyan", size=1)+
   #geom_errorbar(aes(ymin=(mean.mass-se.mass), ymax=(mean.mass+se.mass)), width=0.2)+
   geom_point(pch=21, color="black", fill="darkcyan", size=2)+
   theme_classic(base_size = 12)+
   xlab(NULL)+
-  ylab(expression(paste("Mean biomass, g/m"^"2")))+
+  ylab(expression(paste("Biomass, g")))+
   xlim(1980,2022)+
   theme(axis.line.x = element_blank(), axis.ticks.x=element_blank(),
         axis.text.x=element_blank())+
-  annotate("text", x=1981, y=32, label="SBC", size=8)
+  annotate("text", x=1981, y=30, label="SBC", size=6)+
+  geom_segment(aes(x=2018, xend=2022, y=20, yend=25), 
+               colour="grey51", linetype="longdash", size=1)+ 
+  geom_segment(aes(x=2018, xend=2022, y=10, yend=15), 
+               colour="grey51", linetype="longdash", size=1)
+
 
 sbc.timeseries
 
 #now mcr
 
 mcr.timeseries<-ggplot(summary.mcr.bysite, aes(Year, mean.mass))+
-    geom_smooth(method="loess", se=T, color="navy", fill="azure3")+
+    geom_smooth(method="loess", se=T, color="navy", fill="azure3", linetype="dotted")+
   geom_line(color="deepskyblue4", size=1)+
-  geom_point(pch=21, color="black", fill="deepskyblue", size=2)+
+  geom_point(pch=21, color="black", fill="deepskyblue4", size=2)+
   theme_classic(base_size = 12)+
   xlab(NULL)+
-  ylab(expression(paste("Mean biomass per sampling swath, g")))+
+  ylab(expression(paste("Biomass, g")))+
   xlim(1980,2022)+
   theme(axis.line.x = element_blank(), axis.ticks.x=element_blank(),
         axis.text.x=element_blank())+
-  annotate("text", x=1981, y=32, label="MCR", size=8)
+  annotate("text", x=1981, y=30, label="MCR", size=6)+
+  geom_segment(aes(x=2018, xend=2022, y=25, yend=20), 
+               colour="grey51", linetype="longdash", size=1)+ 
+  geom_segment(aes(x=2018, xend=2022, y=10, yend=5), 
+               colour="grey51", linetype="longdash", size=1)
 
 mcr.timeseries
 
+grid.draw(rbind(ggplotGrob(mcr.timeseries), ggplotGrob(sbc.timeseries), 
+                ggplotGrob(ntl.timeseries),
+                size="first"))
 
+
+pdf("fish_timeseries.pdf", height=5, width=8)
+grid.draw(rbind(ggplotGrob(mcr.timeseries), ggplotGrob(sbc.timeseries), 
+                ggplotGrob(ntl.timeseries),
+                size="first"))
+dev.off()
