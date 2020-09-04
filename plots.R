@@ -121,13 +121,16 @@ unique(ntl$spname)
 #ok, let's just turn this into raw biomass per sampling year- turns out multiple dates are
 #just the same sampling event
 
-#need to standardize sampling effort, first let's just use BSEINE becasue it's been used consistently
-#and lake ME because it's the urban one so prbably is most affected by local games fishers
+#need to standardize sampling effort, first let's just use ELFISH becasue it's been used consistently
+#and lake MONONA because it's largish, uniform and commonly fished
+ntl.2<-ntl[which(ntl$lakeid=="MO" & ntl$gearid=="ELFISH"),]
 
-ntl.2<-ntl[which(ntl$lakeid=="ME" & ntl$gearid=="BSEINE"),]
+#let's also cut to just the most commonly fished species for that lake as 'indicators
+
+ntl.3<-ntl.2[which(ntl.2$spname=="BLUEGILL" | ntl.2$spname=="LARGEMOUTHBASS"),]
 
 
-summary.ntl<-ddply(ntl.2, c("year4", "effort"), summarise,
+summary.ntl<-ddply(ntl.3, c("year4", "effort"), summarise,
                    tot.caught=(sum(total_caught, na.rm=T)))
 
 #compute fish per unit effort
@@ -154,8 +157,8 @@ ntl.timeseries<-ggplot(summary.ntl, aes(year4, fish.effort))+
   theme_classic(base_size = 12)+
   xlab("Year")+
   ylab("Fish per sample\n")+
-  xlim(1980,2022)+
-  annotate("text", x=1981, y=425, label="NTL", size=6)+
+  xlim(1994,2022)+
+  annotate("text", x=1995, y=375, label="NTL", size=6)+
   geom_segment(aes(x=2019, xend=2022, y=120, yend=120), 
                colour="grey51", linetype="longdash", size=1)+ 
   geom_segment(aes(x=2019, xend=2022, y=0, yend=0), 
@@ -174,10 +177,10 @@ sbc.timeseries<-ggplot(summary.sbc.bysite, aes(YEAR, mean.count))+
   theme_classic(base_size = 12)+
   xlab(NULL)+
   ylab(expression(paste("Lobsters per trap")))+
-  xlim(1980,2022)+
+  xlim(1994,2022)+
   theme(axis.line.x = element_blank(), axis.ticks.x=element_blank(),
         axis.text.x=element_blank())+
-  annotate("text", x=1981, y=1.45, label="SBC", size=6)+
+  annotate("text", x=1995, y=1.45, label="SBC", size=6)+
   geom_segment(aes(x=2019, xend=2022, y=1.3, yend=1.6), 
                colour="grey51", linetype="longdash", size=1)+ 
   geom_segment(aes(x=2019, xend=2022, y=0.9, yend=1.2), 
@@ -195,10 +198,10 @@ mcr.timeseries<-ggplot(summary.mcr.bysite, aes(Year, mean.mass))+
   theme_classic(base_size = 12)+
   xlab(NULL)+
   ylab(expression(paste("Fishable biomass (g)")))+
-  xlim(1980,2022)+
+  xlim(1994,2022)+
   theme(axis.line.x = element_blank(), axis.ticks.x=element_blank(),
         axis.text.x=element_blank())+
-  annotate("text", x=1981, y=18, label="MCR", size=6)+
+  annotate("text", x=1995, y=18, label="MCR", size=6)+
   geom_segment(aes(x=2018, xend=2022, y=13, yend=8), 
                colour="grey51", linetype="longdash", size=1)+ 
   geom_segment(aes(x=2018, xend=2022, y=8, yend=3), 
